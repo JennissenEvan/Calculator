@@ -32,8 +32,13 @@ namespace Calculator
 
         private Operator activeOperator;
 
+        //runningValue represents the value which is being operated on
+        //It stores the inital inputted value or the result of the last operation
         private CalculatorValue runningValue;
+        //tempValue is the value of the right side operand
         private CalculatorValue tempValue;
+
+        //workingValue is a reference to the currently displayed value, either runningValue or tempValue
         private CalculatorValue workingValue;
 
         private bool initialEntry = true;
@@ -52,11 +57,17 @@ namespace Calculator
             UpdateDisplay();
         }
 
+        /// <summary>
+        /// Called whenever one of the calculator buttons is clicked.
+        /// </summary>
         private void CalcButton_Click(object sender, RoutedEventArgs e)
         {
+            //Instead of giving each button its own event method, all buttons subscribe to this method and the button's name is used in a switch case
+            //Because all buttons are in the same place and perform similar actions, this greaty reduces boilerplate
+
             Button button = (Button)sender;
 
-            if (runningValue.IsError && button.Name != "Clear") { return; }
+            if (runningValue.IsError && button.Name != "Clear") return;
 
             switch (button.Name)
             {
@@ -143,11 +154,17 @@ namespace Calculator
             UpdateDisplay();
         }
 
+        /// <summary>
+        /// Resets the calculator's temp value
+        /// </summary>
         private void ResetTempVal()
         {
             tempValue = new CalculatorValue();
         }
 
+        /// <summary>
+        /// Reset the calculator, as per the C button
+        /// </summary>
         private void CClear()
         {
             activeOperator = Operator.None;
@@ -156,6 +173,10 @@ namespace Calculator
             workingValue = runningValue;
         }
 
+        /// <summary>
+        /// Input a digit into the calculator
+        /// </summary>
+        /// <param name="d">the digit to enter</param>
         private void InputDigit(char d)
         {
             if (tempValue.IsEmpty)
@@ -172,6 +193,10 @@ namespace Calculator
             workingValue.AddDigit(d);
         }
 
+        /// <summary>
+        /// Set the calculator's current operator
+        /// </summary>
+        /// <param name="o">the operator to be set to</param>
         private void SetOperator(Operator o)
         {
             initialEntry = false;
@@ -183,6 +208,9 @@ namespace Calculator
             activeOperator = o;
         }
 
+        /// <summary>
+        /// Perform an operation, as per the = button
+        /// </summary>
         private void DoOperation()
         {
             if (tempValue.IsEmpty) { return; }
@@ -224,12 +252,18 @@ namespace Calculator
             workingValue = runningValue;
         }
 
+        /// <summary>
+        /// Update the digital display with the current working value
+        /// </summary>
         private void UpdateDisplay()
         {
             Display.Text = workingValue.Value;
         }
     }
 
+    /// <summary>
+    /// Handles the value of the calculator
+    /// </summary>
     public class CalculatorValue
     {
         public const string NumericalChars = "1234567890";
@@ -274,7 +308,7 @@ namespace Calculator
 
             double absValue = Math.Abs(avalue);
             string trialValue = Math.Floor(absValue).ToString();
-            int allowedFDigits = -1;
+            int allowedFDigits = -1; //The maximum allowed digits after the decimal point for when the double is formatted to a string
             if (trialValue == "0")
             {
                 allowedFDigits += MaxDigits;
@@ -300,6 +334,10 @@ namespace Calculator
             }
         }
 
+        /// <summary>
+        /// Enter a digit into the calculator value
+        /// </summary>
+        /// <param name="digit">digit character</param>
         public void AddDigit(char digit)
         {
             if (!ValidChars.Contains(digit)) { throw new InvalidCharException("Unknown input character."); }
@@ -335,6 +373,10 @@ namespace Calculator
             Value = _value + digit;
         }
 
+        /// <summary>
+        /// Get the exising value as a double
+        /// </summary>
+        /// <returns>value as double</returns>
         public double GetArithmeticValue()
         {
             if (IsError)
@@ -356,6 +398,10 @@ namespace Calculator
             }
         }
 
+        /// <summary>
+        /// Try to shorten the value string by removing the front digit if it is a 0.
+        /// This may occur before a decimal point.
+        /// </summary>
         private void AttemptConsolidate()
         {
             if (_value[0] == '0')
@@ -365,6 +411,9 @@ namespace Calculator
         }
     }
 
+    /// <summary>
+    /// An error value
+    /// </summary>
     public class ErrorValue : CalculatorValue
     {
         public ErrorValue()
@@ -372,6 +421,10 @@ namespace Calculator
             IsError = true;
         }
     }
+
+    /// <summary>
+    /// Exception to be thrown when an attempt is made to input an invalid character to a value
+    /// </summary>
     public class InvalidCharException : Exception
     {
         public InvalidCharException()
@@ -384,6 +437,9 @@ namespace Calculator
         }
     }
 
+    /// <summary>
+    /// Exception to be thrown when an attempt is made to get the arithmetic value of an error
+    /// </summary>
     public class CalcErrorException : Exception
     {
     }
