@@ -49,11 +49,6 @@ namespace Calculator
 
             InitializeComponent();
 
-            foreach (Button b in ButtonGrid.Children)
-            {
-                b.Click += CalcButton_Click;
-            }
-
             UpdateDisplay();
         }
 
